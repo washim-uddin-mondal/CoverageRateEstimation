@@ -29,20 +29,18 @@ def train(args):
 
     EncNet = []             # list of Encoders for all SINRThr values
     DecNet = []             # list of Decoders for all SINRThr values
-    params_to_optimize = []
+    optimizers = []
 
     for SINRThrIndex in range(args.NumSINRThr):
         EncNet.append(Encoder(args))
         DecNet.append(Decoder(args))
-        params_to_optimize += list(EncNet[-1].parameters()) + list(DecNet[-1].parameters())
-
-    optimizer = optim.Adam(params=params_to_optimize, lr=args.lr)
+        params_to_optimize = list(EncNet[-1].parameters()) + list(DecNet[-1].parameters())
+        optimizers.append(optim.Adam(params=params_to_optimize, lr=args.lr))
 
     # Either coverage or rate matrix depending on user input
     SimOutMatrix = torch.zeros(args.batchlength, args.NumSINRThr, int(xSteps*args.MaskRatio), int(ySteps*args.MaskRatio))
 
     avgL = torch.zeros(args.NumSINRThr)              # Average Cumulative Loss for each SINRThr values
-    batchLoss = torch.zeros(args.NumSINRThr)         # batch loss at the current iteration
     iteration = 0
 
     LossVec = torch.zeros([args.NumSINRThr, args.TrainReRun*int(int(args.TrainFraction*NumBox)/args.batchlength)])
@@ -74,17 +72,16 @@ def train(args):
                 EncOutput = EncNet[SINRThrIndex](BSCells)
                 DecOutput = DecNet[SINRThrIndex](EncOutput)
 
-                MaskedDecOutput = DecOutput[:, :, args.xIndexMin:args.xIndexMax, args.yIndexMin:args.yIndexMax]
+                MaskedDecOutput = copy.copy(DecOutput[:, :, args.xIndexMin:args.xIndexMax, args.yIndexMin:args.yIndexMax])
                 SimOutput = SimOutMatrix[:, SINRThrIndex, :, :].unsqueeze(1)
-                batchLoss[SINRThrIndex] = torch.mean(torch.abs(copy.copy(MaskedDecOutput) - SimOutput) ** args.loss_exp)
+                batchLoss = torch.mean(torch.abs(MaskedDecOutput - SimOutput) ** args.loss_exp)
 
-            sumBatchLoss = torch.sum(batchLoss)
-            optimizer.zero_grad()
-            sumBatchLoss.backward(retain_graph=True)
-            optimizer.step()
+                optimizers[SINRThrIndex].zero_grad()
+                batchLoss.backward()
+                optimizers[SINRThrIndex].step()
 
-            avgL = avgL + (batchLoss - avgL)/iteration
-            LossVec[:, iteration-1] = avgL**(1/args.loss_exp)
+                avgL[SINRThrIndex] += (batchLoss - avgL[SINRThrIndex])/iteration
+                LossVec[SINRThrIndex, iteration-1] = avgL[SINRThrIndex]**(1/args.loss_exp)
 
             if iteration % 100 == 0:
                 args.logger.info(f'Data: {args.Country}, Seed Index: {args.CurrentSeedIndex}, Iteration: {iteration}')
