@@ -1,0 +1,14 @@
+.idea
+AuxiliaryResults
+Results
+Models
+Data/Brazil/BSLocations0.csv
+Data/Germany/BSLocations0.csv
+Data/India/BSLocations0.csv
+Data/India/BSLocations1.csv
+Data/USA/BSLocations0.csv
+Data/USA/BSLocations1.csv
+Data/USA/BSLocations2.csv
+Data/USA/BSLocations3.csv
+Data/USA/BSLocations4.csv
+Scripts/__pycache__/
