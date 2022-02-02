@@ -47,5 +47,8 @@ Results/Brazil/Shape1.0/Raw/progress.log
 Results/India/Shape1.0/Raw/progress.log    
 Results/Germany/Shape1.0/Raw/progress.log     
 
+# Progress Summary
 
+To see the progress summary, use the following command:
 
+source progress.sh
