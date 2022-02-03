@@ -1,6 +1,6 @@
 # CNN Based Coverage Estimation
  
-This repository contains codes for coverage manifod estimation in cellular networks from real data. We have tested our
+This repository contains codes for coverage manifold estimation in cellular networks from real data. We have tested our
 code on the base station location data of the following countries:
 
 1. India
@@ -14,7 +14,7 @@ respective subfolders as 'BSLocations.csv'. For some of the countries, there are
 location files. In that case, save them as 'BSLocations0.csv', 'BSLocations1.csv' etc in the same subfolder.
 
 The results are stored in the Results folder (created on the fly). The default values of all the parameters
-can be found in Codes/Parameters.py file. Some parameter values can be modified from the command line as well.
+can be found in Scripts/Parameters.py file. Some parameter values can be modified from the command line as well.
 
 # Command Line Options:
 
