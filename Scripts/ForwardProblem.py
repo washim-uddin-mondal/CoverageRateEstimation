@@ -1,7 +1,6 @@
 import torch
 import torch.optim as optim
 import numpy as np
-import copy
 from CoverageRateSimulator import CoverageRateSimulator
 from NeuralNets import Encoder, Decoder
 from UsefulFunctions import PPPCoverageFunction, PPPRateFunction
@@ -72,7 +71,7 @@ def train(args):
                 EncOutput = EncNet[SINRThrIndex](BSCells)
                 DecOutput = DecNet[SINRThrIndex](EncOutput)
 
-                MaskedDecOutput = copy.copy(DecOutput[:, :, args.xIndexMin:args.xIndexMax, args.yIndexMin:args.yIndexMax])
+                MaskedDecOutput = DecOutput[:, :, args.xIndexMin:args.xIndexMax, args.yIndexMin:args.yIndexMax]
                 SimOutput = SimOutMatrix[:, SINRThrIndex, :, :].unsqueeze(1)
                 batchLoss = torch.mean(torch.abs(MaskedDecOutput - SimOutput) ** args.loss_exp)
 
