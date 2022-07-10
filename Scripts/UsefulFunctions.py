@@ -21,24 +21,17 @@ def integrand_rate4(v, t, Density, InvSNR):
     return np.exp(-Term0 - Term1)
 
 
+""" The expressions used below only apply to a Rayleigh faded channel with pathloss exponent 4."""
+
+
 def PPPCoverageFunction(Density, SINRThr, args):
-    if args.alpha == 4:
-
-        T = 10**(SINRThr/10)
-        InvSNR = args.NoiseOverPower
-        result = quad(integrand_coverage4, 0, np.inf, args=(T, Density, InvSNR))
-        return torch.tensor(result[0])
-
-    else:
-        raise ValueError('Please use alpha = 4.\n'
-                         'Coverage expression for other values are still under development.')
+    T = 10**(SINRThr/10)
+    InvSNR = args.NoiseOverPower
+    result = quad(integrand_coverage4, 0, np.inf, args=(T, Density, InvSNR))
+    return torch.tensor(result[0])
 
 
 def PPPRateFunction(Density, args):
-    if args.alpha == 4:
-        InvSNR = args.NoiseOverPower
-        result = dblquad(integrand_rate4, 0, np.inf, lambda x: 0, lambda x: np.inf, args=(Density, InvSNR))
-        return torch.tensor(result[0])
-    else:
-        raise ValueError('Please use alpha = 4.\n'
-                         'Rate expression for other values is being developed.')
+    InvSNR = args.NoiseOverPower
+    result = dblquad(integrand_rate4, 0, np.inf, lambda x: 0, lambda x: np.inf, args=(Density, InvSNR))
+    return torch.tensor(result[0])

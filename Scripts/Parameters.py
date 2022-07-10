@@ -46,11 +46,26 @@ def ParseInput():
     """
     ====================== Command Line Options for the Simulator ===========================
     """
-    # Options for the channel
-    parser.add_argument('--association', type=str, default='Inst', dest='AssocRule', help='BS association rule')
+    # Options for the Rayleigh faded channel with no consideration of shadowing, LOS/NLOS paths and antenna gain
     parser.add_argument('--pathloss', type=checkPositiveFloat, default=4, dest='alpha', help='pathloss coefficient')
     parser.add_argument('--fading_shape', type=checkPositiveFloat, default=1.0, dest='m_par', help='shape parameter for the Nakagami distribution')
     parser.add_argument('--inverse_snr', type=checkPositiveFloat, default=10**(-2), dest='NoiseOverPower', help='inverse snr')
+
+    # Options for realistic channel models
+    parser.add_argument('--real_channel_model', action='store_true', help='use realistic channel models')
+    parser.add_argument('--pathloss_los', type=checkPositiveFloat, default=2, dest='alpha_los', help='pathloss coefficient for LOS path')
+    parser.add_argument('--pathloss_nlos', type=checkPositiveFloat, default=4, dest='alpha_nlos', help='pathloss coefficient for NLOS path')
+    parser.add_argument('--fading_shape_los', type=checkPositiveFloat, default=3.0, dest='m_par_los', help='shape parameter for Nakagami distributed LOS path')
+    parser.add_argument('--fading_shape_nlos', type=checkPositiveFloat, default=2.0, dest='m_par_nlos', help='shape parameter for Nakagami distributed NLOS path')
+    parser.add_argument('--shadowing_sd', type=checkPositiveFloat, default=10, dest='sigma_shadow', help='standard deviation (linear) of log-normal shadowing')
+    parser.add_argument('--beta_inv', type=checkPositiveFloat, default=140, dest='beta_inv', help='average LOS range')
+    parser.add_argument('--main_lobe_t', type=checkPositiveFloat, default=10, dest='main_lobe_t', help='main lobe gain (linear) of transmitter')
+    parser.add_argument('--side_lobe_t', type=checkPositiveFloat, default=0.1, dest='side_lobe_t', help='side lobe gain (linear) of transmitter')
+    parser.add_argument('--beamwidth_t', type=checkPositiveFloat, default=45, dest='beamwidth_t', help='beamwidth (degree) of transmitter')
+    parser.add_argument('--main_lobe_r', type=checkPositiveFloat, default=10, dest='main_lobe_r', help='main lobe gain (linear) of receiver')
+    parser.add_argument('--side_lobe_r', type=checkPositiveFloat, default=0.1, dest='side_lobe_r', help='side lobe gain (linear) of receiver')
+    parser.add_argument('--beamwidth_r', type=checkPositiveFloat, default=90, dest='beamwidth_r', help='beamwidth (degree) of receiver')
+
     parser.add_argument('--rate_norm_factor', type=checkPositiveFloat, default=10, dest='RateNormalizingFactor', help='rate normalizing factor')
     parser.add_argument('--max_iterations', type=checkPositiveInt, default=30, dest='MaxSimIter', help='maximum iterations to simulate the environment')
 
@@ -117,7 +132,6 @@ def ParseInput():
     """
 
     args.CountryList = ['India', 'USA', 'Germany', 'Brazil']
-    args.AssociationRules = ['Inst', 'Avg']
 
     # Folders
     args.DataFolder = args.Data + args.Country + '/'
@@ -147,15 +161,18 @@ def ParseInput():
     args.lat_div = (180 * args.yLength) / (3.1415 * args.EarthR)        # Corresponds to yLength
     # Longitude division corresponding to xLength is not constant, but depends on latitude
 
+    # Random Variable related to Antenna Gain
+    args.antenna_gain_values = torch.tensor([args.main_lobe_t*args.main_lobe_r, args.side_lobe_t*args.main_lobe_r, args.main_lobe_t*args.side_lobe_r, args.side_lobe_t*args.side_lobe_r])
+    c_t = args.beamwidth_t/360
+    c_r = args.beamwidth_r/360
+    antenna_gain_probs = torch.tensor([c_t*c_r, (1-c_t)*c_r, c_t*(1-c_r), (1-c_t)*(1-c_r)])
+    args.antenna_gain_dist = torch.distributions.Categorical(antenna_gain_probs)
+
     """
     ============================== Catch/Change Invalid Inputs ==============================
     """
     if not args.coverage:
         args.NumSINRThr = 1  # Evaluation of rate is SINRThr independent
-
-    if args.AssocRule not in args.AssociationRules:
-        raise ValueError(f'Association rule is not implemented. \n'
-                         f'Available rules are {args.AssociationRules}.')
 
     if args.Country not in args.CountryList:
         raise ValueError(f'Country Data not available. \n'

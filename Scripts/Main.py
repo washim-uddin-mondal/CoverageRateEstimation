@@ -13,9 +13,16 @@ if __name__ == '__main__':
     args = ParseInput()
     t0 = time.time()
 
+    # Condition when PPP expressions are evaluated and compared
+    args.PPP_condition = (not args.real_channel_model) and (args.alpha == 4) and (args.m_par == 1)
+
     # Indexed in the same order in forward-problem
-    args.RelativePlots = ['PPP', 'Best']
-    args.AbsolutePlots = ['CNN', 'PPP', 'Best']
+    if args.PPP_condition:
+        args.RelativePlots = ['PPP', 'Best']
+        args.AbsolutePlots = ['CNN', 'PPP', 'Best']
+    else:
+        args.RelativePlots = ['Best']
+        args.AbsolutePlots = ['CNN', 'Best']
 
     CreateBasicFolders(args)
 

@@ -84,6 +84,7 @@ def train(args):
 
             if iteration % 100 == 0:
                 args.logger.info(f'Data: {args.Country}, Seed Index: {args.CurrentSeedIndex}, Iteration: {iteration}')
+                print(iteration)
 
     for SINRThrIndex in range(args.NumSINRThr):
         torch.save(EncNet[SINRThrIndex].state_dict(), args.ModelsFolder + f'Encoder{SINRThrIndex}.pkl')
@@ -144,7 +145,8 @@ def evaluate(args):
         SimOutMatrix = Simulator.simulate(NumberBS, xBS, yBS)
 
         lossCNN = torch.zeros(args.NumSINRThr)
-        lossPPP = torch.zeros(args.NumSINRThr)
+        if args.PPP_condition:
+            lossPPP = torch.zeros(args.NumSINRThr)
         lossBest = torch.zeros(args.NumSINRThr)
 
         for SINRThrIndex in range(args.NumSINRThr):
@@ -156,18 +158,25 @@ def evaluate(args):
 
             if args.coverage:
                 SINRThr = args.SINRThrVec[SINRThrIndex]
-                PPPAvg = PPPCoverageFunction(DensityBS, SINRThr, args)
+                if args.PPP_condition:
+                    PPPAvg = PPPCoverageFunction(DensityBS, SINRThr, args)
             else:
-                PPPAvg = PPPRateFunction(DensityBS, args)
+                if args.PPP_condition:
+                    PPPAvg = PPPRateFunction(DensityBS, args)
 
             lossCNN[SINRThrIndex] = torch.mean(torch.abs(MaskedDecOutput - SimOutput) ** args.loss_exp)
-            lossPPP[SINRThrIndex] = torch.mean(torch.abs(SimOutput - PPPAvg) ** args.loss_exp)
+            if args.PPP_condition:
+                lossPPP[SINRThrIndex] = torch.mean(torch.abs(SimOutput - PPPAvg) ** args.loss_exp)
             lossBest[SINRThrIndex] = torch.mean(torch.abs(SimOutput - torch.mean(SimOutput)) ** args.loss_exp)
 
         data_index += 1
-        avgL[0, :] += (np.array(lossCNN.detach()) - avgL[0, :]) / data_index
-        avgL[1, :] += (np.array(lossPPP.detach()) - avgL[1, :]) / data_index
-        avgL[2, :] += (np.array(lossBest.detach()) - avgL[2, :]) / data_index
+        if args.PPP_condition:
+            avgL[0, :] += (np.array(lossCNN.detach()) - avgL[0, :]) / data_index
+            avgL[1, :] += (np.array(lossPPP.detach()) - avgL[1, :]) / data_index
+            avgL[2, :] += (np.array(lossBest.detach()) - avgL[2, :]) / data_index
+        else:
+            avgL[0, :] += (np.array(lossCNN.detach()) - avgL[0, :]) / data_index
+            avgL[1, :] += (np.array(lossBest.detach()) - avgL[2, :]) / data_index
 
     args.logger.info(f'Data: {args.Country}, Seed Index: {args.CurrentSeedIndex}')
 
