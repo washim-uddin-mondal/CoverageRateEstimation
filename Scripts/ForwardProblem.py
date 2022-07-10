@@ -84,7 +84,6 @@ def train(args):
 
             if iteration % 100 == 0:
                 args.logger.info(f'Data: {args.Country}, Seed Index: {args.CurrentSeedIndex}, Iteration: {iteration}')
-                print(iteration)
 
     for SINRThrIndex in range(args.NumSINRThr):
         torch.save(EncNet[SINRThrIndex].state_dict(), args.ModelsFolder + f'Encoder{SINRThrIndex}.pkl')
@@ -176,7 +175,7 @@ def evaluate(args):
             avgL[2, :] += (np.array(lossBest.detach()) - avgL[2, :]) / data_index
         else:
             avgL[0, :] += (np.array(lossCNN.detach()) - avgL[0, :]) / data_index
-            avgL[1, :] += (np.array(lossBest.detach()) - avgL[2, :]) / data_index
+            avgL[1, :] += (np.array(lossBest.detach()) - avgL[1, :]) / data_index
 
     args.logger.info(f'Data: {args.Country}, Seed Index: {args.CurrentSeedIndex}')
 
