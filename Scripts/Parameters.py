@@ -58,7 +58,7 @@ def ParseInput():
     parser.add_argument('--fading_shape_los', type=checkPositiveFloat, default=3.0, dest='m_par_los', help='shape parameter for Nakagami distributed LOS path')
     parser.add_argument('--fading_shape_nlos', type=checkPositiveFloat, default=2.0, dest='m_par_nlos', help='shape parameter for Nakagami distributed NLOS path')
     parser.add_argument('--shadowing_sd', type=checkPositiveFloat, default=10, dest='sigma_shadow', help='standard deviation (linear) of log-normal shadowing')
-    parser.add_argument('--beta_inv', type=checkPositiveFloat, default=140, dest='beta_inv', help='average LOS range')
+    parser.add_argument('--beta_inv', type=checkPositiveFloat, default=0.140, dest='beta_inv', help='average LOS range (km)')
     parser.add_argument('--main_lobe_t', type=checkPositiveFloat, default=10, dest='main_lobe_t', help='main lobe gain (linear) of transmitter')
     parser.add_argument('--side_lobe_t', type=checkPositiveFloat, default=0.1, dest='side_lobe_t', help='side lobe gain (linear) of transmitter')
     parser.add_argument('--beamwidth_t', type=checkPositiveFloat, default=45, dest='beamwidth_t', help='beamwidth (degree) of transmitter')
