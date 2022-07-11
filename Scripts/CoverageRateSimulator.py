@@ -34,10 +34,10 @@ class CoverageRateSimulator:
 
                 DistGainMesh = DistMesh**(-alphaMesh)
                 FadingMesh = torch.tensor(np.random.gamma(mMesh))
-                ShadowingMesh = torch.exp(self.args.sigma_shadow * torch.randn([NumberBS, xSteps, ySteps]))  # LogNormal
+                ShadowingMesh = 10**(0.1*self.args.sigma_shadow*torch.randn([NumberBS, xSteps, ySteps]))     # LogNormal
                 AntennaGainMesh = self.args.antenna_gain_values[self.args.antenna_gain_dist.sample([NumberBS, xSteps, ySteps])]
 
-                AssocMatrix = DistGainMesh.max(dim=0)[1]                                              # Indices of associated BSs
+                AssocMatrix = DistGainMesh.max(dim=0)[1]                                              # Indices of associated (closest) BSs
 
                 GainMeshNoAntenna = ShadowingMesh * FadingMesh * DistGainMesh                         # Element wise multiplication
                 AssocGainNoAntenna = torch.gather(GainMeshNoAntenna, 0, AssocMatrix.unsqueeze(0))     # Gains of associated BSs with No Antenna Gain
@@ -58,15 +58,20 @@ class CoverageRateSimulator:
                         MeshOutput[SINRIndex, :, :] += (torch.log2(1 + SINRMesh) / self.NormalizingFactor - MeshOutput[SINRIndex, :, :]) / (iteration + 1)
 
         else:
-            # Rayleigh faded channel with no consideration of shadowing, antenna gain or LOS/NLOS path
+            # Nakagami faded channel with no consideration of shadowing, antenna gain or LOS/NLOS path
             DistGainMesh = DistMesh.pow(-self.args.alpha)
 
             for iteration in range(self.args.MaxSimIter):
                 FadingMesh = torch.tensor(np.random.gamma(self.args.m_par*np.ones([NumberBS, xSteps, ySteps])))
-                GainMesh = FadingMesh * DistGainMesh                              # Element wise multiplication
-                AssocMatrix = DistGainMesh.max(dim=0)[1]                          # Indices of associated BSs
-                AssocGain = torch.gather(GainMesh, 0, AssocMatrix.unsqueeze(0))   # Gains of associated BSs
-                AssocGain = AssocGain.squeeze()
+                GainMesh = FadingMesh * DistGainMesh                                  # Element wise multiplication
+
+                if self.args.AssocRule == 'Avg':                                      # Maximum average gain (closest distance) based BS association
+                    AssocMatrix = DistGainMesh.max(dim=0)[1]                          # Indices of associated BSs
+                    AssocGain = torch.gather(GainMesh, 0, AssocMatrix.unsqueeze(0))   # Gains of associated BSs
+                    AssocGain = AssocGain.squeeze()
+
+                elif self.args.AssocRule == 'Inst':                                   # Maximum instantaneous gain based BS association
+                    AssocGain = GainMesh.max(dim=0)[0]                                # Gains of associated BSs
 
                 Interference = GainMesh.sum(dim=0) - AssocGain
                 SINRMesh = AssocGain / (Interference + self.args.NoiseOverPower)

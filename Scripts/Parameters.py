@@ -47,6 +47,7 @@ def ParseInput():
     ====================== Command Line Options for the Simulator ===========================
     """
     # Options for the Rayleigh faded channel with no consideration of shadowing, LOS/NLOS paths and antenna gain
+    parser.add_argument('--association', type=str, default='Inst', dest='AssocRule', help='BS association rule')
     parser.add_argument('--pathloss', type=checkPositiveFloat, default=4, dest='alpha', help='pathloss coefficient')
     parser.add_argument('--fading_shape', type=checkPositiveFloat, default=1.0, dest='m_par', help='shape parameter for the Nakagami distribution')
     parser.add_argument('--inverse_snr', type=checkPositiveFloat, default=10**(-2), dest='NoiseOverPower', help='inverse snr')
@@ -57,7 +58,7 @@ def ParseInput():
     parser.add_argument('--pathloss_nlos', type=checkPositiveFloat, default=4, dest='alpha_nlos', help='pathloss coefficient for NLOS path')
     parser.add_argument('--fading_shape_los', type=checkPositiveFloat, default=3.0, dest='m_par_los', help='shape parameter for Nakagami distributed LOS path')
     parser.add_argument('--fading_shape_nlos', type=checkPositiveFloat, default=2.0, dest='m_par_nlos', help='shape parameter for Nakagami distributed NLOS path')
-    parser.add_argument('--shadowing_sd', type=checkPositiveFloat, default=10, dest='sigma_shadow', help='standard deviation (linear) of log-normal shadowing')
+    parser.add_argument('--shadowing_sd', type=checkPositiveFloat, default=5, dest='sigma_shadow', help='standard deviation (dB) of log-normal shadowing')
     parser.add_argument('--beta_inv', type=checkPositiveFloat, default=0.140, dest='beta_inv', help='average LOS range (km)')
     parser.add_argument('--main_lobe_t', type=checkPositiveFloat, default=10, dest='main_lobe_t', help='main lobe gain (linear) of transmitter')
     parser.add_argument('--side_lobe_t', type=checkPositiveFloat, default=0.1, dest='side_lobe_t', help='side lobe gain (linear) of transmitter')
@@ -132,6 +133,7 @@ def ParseInput():
     """
 
     args.CountryList = ['India', 'USA', 'Germany', 'Brazil']
+    args.AssociationRules = ['Inst', 'Avg']
 
     # Folders
     args.DataFolder = args.Data + args.Country + '/'
@@ -173,6 +175,10 @@ def ParseInput():
     """
     if not args.coverage:
         args.NumSINRThr = 1  # Evaluation of rate is SINRThr independent
+
+    if args.AssocRule not in args.AssociationRules:
+        raise ValueError(f'Association rule is not implemented. \n'
+                         f'Available rules are {args.AssociationRules}.')
 
     if args.Country not in args.CountryList:
         raise ValueError(f'Country Data not available. \n'

@@ -33,10 +33,10 @@ geopandas (0.6.2)
 
 # Run Experiments
 
-python Scripts/Main.py --coverage --country India --visualise --rerun 10 --fading_shape 1 --seeds 1     
-python Scripts/Main.py --coverage --country Germany --lengthX 5 --lengthY 5 --fading_shape 1 --seeds 1   
-python Scripts/Main.py --coverage --country USA --lengthX 5 --lengthY 5 --fading_shape 1 --seeds 1   
-python Scripts/Main.py --coverage --country Brazil --visualise --rerun 4 --fading_shape 1 --seeds 1   
+python Scripts/Main.py --coverage --country India --visualise --rerun 10 --fading_shape 1 --seeds 5     
+python Scripts/Main.py --coverage --country Germany --lengthX 5 --lengthY 5 --fading_shape 1 --seeds 5   
+python Scripts/Main.py --coverage --country USA --lengthX 5 --lengthY 5 --fading_shape 1 --seeds 5   
+python Scripts/Main.py --coverage --country Brazil --visualise --rerun 4 --fading_shape 1 --seeds 5   
 
 # Logging
 
