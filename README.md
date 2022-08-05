@@ -1,7 +1,6 @@
-# CNN Based Coverage Estimation
+# CNN Based Coverage and Rate Estimation
  
-This repository contains codes for coverage manifold estimation in cellular networks from real data. We have tested our
-code on the base station location data of the following countries:
+This repository contains codes for coverage and rate manifold estimation in cellular networks from real data. We have tested our code on the base station location data of the following countries:
 
 1. India
 2. Brazil
