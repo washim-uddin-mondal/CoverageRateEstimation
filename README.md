@@ -1,6 +1,21 @@
 # CNN Based Coverage and Rate Estimation
  
-This repository contains codes for coverage and rate manifold estimation in cellular networks from real data. We have tested our code on the base station location data of the following countries:
+This repository contains codes for coverage and rate manifold estimation in cellular networks from real data. This work is based on the following paper.
+
+W. U. Mondal, P. D. Mankar, G. Das, V. Aggarwal, and S. V. Ukkusuri, "Deep Learning based Coverage and Rate Manifold Estimation in Cellular Networks".
+
+```
+@article{mondal2022deep,
+  title={Deep Learning based Coverage and Rate Manifold Estimation in Cellular Networks},
+  author={Mondal, Washim Uddin and Mankar, Praful D and Das, Goutam and Aggarwal, Vaneet and Ukkusuri, Satish V},
+  journal={arXiv preprint arXiv:2202.06390},
+  year={2022}
+}
+```
+
+ArXiv: https://arxiv.org/abs/2202.06390
+
+We have tested our code on the base station location data of the following countries:
 
 1. India
 2. Brazil
